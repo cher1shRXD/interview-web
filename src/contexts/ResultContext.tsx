@@ -1,19 +1,7 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import type { AnalysisResult } from "../types";
+import { useState, useEffect, type ReactNode } from "react";
 import { db } from "../services/db";
-
-interface ResultContextType {
-  result: AnalysisResult | null;
-  file: File | null;
-  fileData: string | null;
-  fileName: string | null;
-  setResult: (result: AnalysisResult | null) => Promise<void>;
-  setFile: (file: File | null) => Promise<void>;
-  clear: () => Promise<void>;
-  isLoading: boolean;
-}
-
-const ResultContext = createContext<ResultContextType | null>(null);
+import { ResultContext } from "./ResultContextDefinition";
+import type { AnalysisResult } from "../types";
 
 export const ResultProvider = ({ children }: { children: ReactNode }) => {
   const [result, setResultState] = useState<AnalysisResult | null>(null);
@@ -94,12 +82,4 @@ export const ResultProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </ResultContext.Provider>
   );
-};
-
-export const useResultContext = () => {
-  const context = useContext(ResultContext);
-  if (!context) {
-    throw new Error("useResultContext must be used within ResultProvider");
-  }
-  return context;
 };

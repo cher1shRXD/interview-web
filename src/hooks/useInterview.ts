@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useResultContext } from "../contexts/ResultContext";
+import { useResultContext } from "./useResultContext";
 
 export const useInterview = () => {
   const { result, file, fileData, clear, isLoading } = useResultContext();

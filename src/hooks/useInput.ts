@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useResultContext } from "../contexts/ResultContext";
+import { useResultContext } from "./useResultContext";
 import { useNavigate } from "react-router-dom";
 import { analyzePortfolio } from "../services/gemini";
 

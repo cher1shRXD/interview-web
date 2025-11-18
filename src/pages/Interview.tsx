@@ -54,8 +54,8 @@ const Interview = () => {
       />
 
       <div
-        className="h-full flex flex-col w-full"
-        style={{ width: window.innerWidth >= 768 ? `${100 - leftWidth}%` : '100%' }}>
+        className="h-full flex flex-col w-full md:w-auto"
+        style={{ width: `${100 - leftWidth}%` }}>
         <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 overflow-auto">
           <div className="max-w-2xl w-full space-y-4 md:space-y-6">
             <div className="flex items-center justify-between mb-4 md:mb-8">
