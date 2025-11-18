@@ -1,9 +1,9 @@
-import { Document, Page, pdfjs } from "react-pdf";
-import "react-pdf/dist/Page/AnnotationLayer.css";
-import "react-pdf/dist/Page/TextLayer.css";
-import { usePdfViewer } from "../hooks/usePdfViewer";
+import { useState, useEffect, useMemo } from 'react';
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
 
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface PdfViewerProps {
   file: File | null;
@@ -12,15 +12,40 @@ interface PdfViewerProps {
 }
 
 const PdfViewer = ({ file, fileData, highlightedPage = 1 }: PdfViewerProps) => {
-  const {
-    numPages,
-    currentPage,
-    fileUrl,
-    onDocumentLoadSuccess,
-    onDocumentLoadError,
-    handlePrevPage,
-    handleNextPage,
-  } = usePdfViewer({ file, fileData, highlightedPage });
+  const [numPages, setNumPages] = useState<number>(0);
+  const [currentPage, setCurrentPage] = useState<number>(highlightedPage);
+
+  const fileUrl = useMemo(() => {
+    if (file) {
+      return URL.createObjectURL(file);
+    }
+    return fileData;
+  }, [file, fileData]);
+
+  useEffect(() => {
+    if (file) {
+      const url = URL.createObjectURL(file);
+      return () => {
+        URL.revokeObjectURL(url);
+      };
+    }
+  }, [file]);
+
+  useEffect(() => {
+    setCurrentPage(highlightedPage);
+  }, [highlightedPage]);
+
+  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
+    setNumPages(numPages);
+  };
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, numPages));
+  };
 
   if (!file && !fileData) {
     return (
@@ -44,16 +69,16 @@ const PdfViewer = ({ file, fileData, highlightedPage = 1 }: PdfViewerProps) => {
         <button
           onClick={handlePrevPage}
           disabled={currentPage <= 1}
-          className="px-4 py-2 bg-orange-600 text-white rounded disabled:bg-gray-300 disabled:cursor-not-allowed">
+          className="px-4 py-2 bg-orange-600 text-white rounded disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-orange-700 transition-colors">
           이전
         </button>
-        <span className="text-gray-700">
+        <span className="text-gray-700 font-medium">
           {currentPage} / {numPages || 0}
         </span>
         <button
           onClick={handleNextPage}
           disabled={currentPage >= numPages}
-          className="px-4 py-2 bg-orange-600 text-white rounded disabled:bg-gray-300 disabled:cursor-not-allowed">
+          className="px-4 py-2 bg-orange-600 text-white rounded disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-orange-700 transition-colors">
           다음
         </button>
       </div>
@@ -62,14 +87,14 @@ const PdfViewer = ({ file, fileData, highlightedPage = 1 }: PdfViewerProps) => {
         <Document
           file={fileUrl}
           onLoadSuccess={onDocumentLoadSuccess}
-          onLoadError={onDocumentLoadError}
+          onLoadError={(error) => console.error('PDF 로딩 오류:', error)}
           className="max-w-full">
           <Page
             pageNumber={currentPage}
-            renderTextLayer={false}
-            renderAnnotationLayer={false}
+            renderTextLayer={true}
+            renderAnnotationLayer={true}
             className="shadow-lg"
-            width={600}
+            width={Math.min(window.innerWidth * 0.35 - 48, 800)}
           />
         </Document>
       </div>
