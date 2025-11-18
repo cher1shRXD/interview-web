@@ -1,9 +1,12 @@
-import Router from "./router"
+import Router from "./router";
+import { ResultProvider } from "./contexts/ResultContext";
 
 const App = () => {
   return (
-    <Router />
-  )
-}
+    <ResultProvider>
+      <Router />
+    </ResultProvider>
+  );
+};
 
-export default App
+export default App;
