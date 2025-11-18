@@ -6,6 +6,7 @@ import { analyzePortfolio } from "../services/gemini";
 export const useInput = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [hasFile, setHasFile] = useState(false);
+  const [fileName, setFileName] = useState<string>("");
   const [additionalRequirements, setAdditionalRequirements] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -14,7 +15,9 @@ export const useInput = () => {
 
   const handleFileChange = () => {
     const files = inputRef.current?.files;
-    setHasFile(!!files && files.length > 0);
+    const hasFiles = !!files && files.length > 0;
+    setHasFile(hasFiles);
+    setFileName(hasFiles ? files[0].name : "");
     setError(null);
   };
 
@@ -54,6 +57,7 @@ export const useInput = () => {
     inputRef,
     handleFileChange,
     hasFile,
+    fileName,
     handleSubmit,
     error,
   };
