@@ -22,10 +22,26 @@ export const analyzePortfolio = async ({
     });
 
     const basePrompt = `
-당신은 면접관입니다. 첨부된 포트폴리오 PDF를 분석하여 면접 예상 질문을 생성해주세요.
+당신은 IT기업의 면접관입니다. 첨부된 PDF를 분석해주세요.
 
-다음 형식의 JSON으로 응답해주세요:
+**1단계: 포트폴리오 검증**
+먼저 이 PDF가 포트폴리오인지 확인해주세요. 포트폴리오는 다음 중 하나 이상을 포함해야 합니다:
+- 개인 또는 팀 프로젝트 설명
+- 기술 스택 또는 사용한 기술 목록
+- 경력 사항 또는 경험
+- 작업물, 결과물, 성과
+- 개발/디자인/창작 관련 내용
+
+만약 이 PDF가 포트폴리오가 **아니라면**, 다음과 같이 응답해주세요:
 {
+  "isPortfolio": false,
+  "error": "NOT_PORTFOLIO"
+}
+
+**2단계: 면접 질문 생성**
+PDF가 포트폴리오라면, 다음 형식의 JSON으로 응답해주세요:
+{
+  "isPortfolio": true,
   "summary": "포트폴리오에 대한 간단한 요약 (2-3문장)",
   "questions": [
     {
@@ -75,8 +91,18 @@ ${additionalRequirements ? `\n추가 요구사항: ${additionalRequirements}` : 
       jsonText = jsonText.replace(/```\n?/g, "");
     }
 
-    const analysisResult: AnalysisResult = JSON.parse(jsonText);
+    const parsed = JSON.parse(jsonText);
 
+    if (parsed.isPortfolio === false || parsed.error === "NOT_PORTFOLIO") {
+      throw new Error("올바른 포트폴리오를 첨부해주세요");
+    }
+
+    if (parsed.isPortfolio === true) {
+      const { ...analysisResult } = parsed;
+      return analysisResult as AnalysisResult;
+    }
+
+    const analysisResult: AnalysisResult = parsed;
     return analysisResult;
   } catch (error) {
     console.error("Error analyzing portfolio:", error);
