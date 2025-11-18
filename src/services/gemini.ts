@@ -11,12 +11,7 @@ if (!API_KEY) {
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 export const getFeedback = async (question: string, userAnswer: string, modelAnswer: string): Promise<string> => {
-  try {
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash-lite",
-    });
-
-    const prompt = `
+  const prompt = `
 당신은 엄격하고 객관적인 IT기업의 면접관입니다. 지원자의 답변을 평가해주세요.
 
 아래 정보를 참고하여 평가하되, **피드백에 질문 내용이나 모범답안을 직접 인용하거나 반복하지 마세요.**
@@ -55,6 +50,12 @@ ${userAnswer}
 
 건설적이되 객관적으로 평가해주세요.
 `;
+
+  try {
+    // gemini-2.0-flash-lite 사용
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash-lite",
+    });
 
     const result = await model.generateContent(prompt);
     const response = result.response;

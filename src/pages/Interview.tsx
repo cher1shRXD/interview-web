@@ -36,9 +36,11 @@ const Interview = () => {
     handleGetFeedback,
   } = interviewData;
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const rightSectionStyle = isMobile ? {} : { width: `${100 - leftWidth}%` };
+
   return (
     <div className="w-full h-screen flex flex-col md:flex-row relative overflow-hidden">
-      {/* 나가기 버튼 */}
       <button
         onClick={handleExit}
         className="absolute top-2 right-2 md:top-4 md:right-4 z-10 flex items-center gap-1 md:gap-2 px-3 py-2 md:px-4 md:py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors shadow-lg text-sm md:text-base">
@@ -46,14 +48,12 @@ const Interview = () => {
         <span className="hidden sm:inline">나가기</span>
       </button>
 
-      {/* PDF Viewer - 모바일에서는 숨김 */}
       <div
         className="hidden md:block h-full"
         style={{ width: `${leftWidth}%` }}>
         <PdfViewer file={file} fileData={fileData} highlightedPage={highlightedPage} />
       </div>
 
-      {/* Resizer - 데스크톱만 */}
       <div
         className={`hidden md:block w-px hover:w-1 h-full bg-gray-300 hover:bg-orange-500 cursor-col-resize transition-all ${
           isDragging ? "bg-orange-500" : ""
@@ -61,9 +61,7 @@ const Interview = () => {
         onMouseDown={() => setIsDragging(true)}
       />
 
-      <div
-        className="h-full flex flex-col w-full md:w-auto"
-        style={{ width: `${100 - leftWidth}%` }}>
+      <div className="h-full flex flex-col flex-1" style={rightSectionStyle}>
         <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 overflow-auto">
           <div className="max-w-2xl w-full space-y-4 md:space-y-6">
             <div className="flex items-center justify-between mb-4 md:mb-8">
@@ -127,7 +125,6 @@ const Interview = () => {
                 </button>
               </div>
 
-              {/* 모범답안 섹션 */}
               <div className="mt-3 md:mt-4">
                 <button
                   onClick={() => setShowAnswer(!showAnswer)}
@@ -195,7 +192,6 @@ const Interview = () => {
         </div>
       </div>
 
-      {/* AI 피드백 모달 */}
       {showFeedbackModal && feedback && (
         <div
           className="fixed inset-0 bg-[rgba(0,0,0,0.5)] flex items-center justify-center z-50 p-4"

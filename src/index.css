@@ -125,3 +125,8 @@ body::before {
   --color-border: #ccc;
   --color-text: #444;
 }
+
+
+.h-screen {
+  height: 100svh;
+}
