@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useResultContext } from "./useResultContext";
+import { getFeedback } from "../services/gemini";
 
 export const useInterview = () => {
   const { result, file, fileData, clear, isLoading } = useResultContext();
@@ -9,6 +10,10 @@ export const useInterview = () => {
   const [leftWidth, setLeftWidth] = useState(35);
   const [isDragging, setIsDragging] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
+  const [userAnswer, setUserAnswer] = useState("");
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
   useEffect(() => {
     if (!isLoading && (!result || (!file && !fileData))) {
@@ -54,6 +59,8 @@ export const useInterview = () => {
     if (!isLastQuestion) {
       setCurrentQuestionIndex((prev) => prev + 1);
       setShowAnswer(false);
+      setUserAnswer("");
+      setFeedback(null);
     }
   };
 
@@ -61,6 +68,31 @@ export const useInterview = () => {
     if (!isFirstQuestion) {
       setCurrentQuestionIndex((prev) => prev - 1);
       setShowAnswer(false);
+      setUserAnswer("");
+      setFeedback(null);
+    }
+  };
+
+  const handleGetFeedback = async () => {
+    if (!userAnswer.trim()) {
+      alert("답변을 입력해주세요.");
+      return;
+    }
+
+    setIsLoadingFeedback(true);
+    try {
+      const feedbackText = await getFeedback(
+        currentQuestion.question,
+        userAnswer,
+        currentQuestion.answer
+      );
+      setFeedback(feedbackText);
+      setShowFeedbackModal(true);
+    } catch (error) {
+      alert("피드백 생성 중 오류가 발생했습니다.");
+      console.error(error);
+    } finally {
+      setIsLoadingFeedback(false);
     }
   };
 
@@ -83,10 +115,17 @@ export const useInterview = () => {
     leftWidth,
     isDragging,
     showAnswer,
+    userAnswer,
+    feedback,
+    isLoadingFeedback,
+    showFeedbackModal,
     setIsDragging,
     setShowAnswer,
+    setUserAnswer,
+    setShowFeedbackModal,
     handleNext,
     handlePrev,
     handleExit,
+    handleGetFeedback,
   };
 };

@@ -10,6 +10,42 @@ if (!API_KEY) {
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
+export const getFeedback = async (question: string, userAnswer: string, modelAnswer: string): Promise<string> => {
+  try {
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash-lite",
+    });
+
+    const prompt = `
+당신은 면접관입니다. 지원자의 답변을 평가하고 피드백을 제공해주세요.
+
+**질문:**
+${question}
+
+**모범답안:**
+${modelAnswer}
+
+**지원자 답변:**
+${userAnswer}
+
+다음 형식으로 피드백을 작성해주세요:
+1. **평가 (5점 만점)**: 점수와 간단한 평가
+2. **잘한 점**: 답변에서 좋았던 부분 (2-3문장)
+3. **개선할 점**: 보완하면 좋을 부분 (2-3문장)
+4. **추가 조언**: 실무 관점에서의 조언 (1-2문장)
+
+친절하고 건설적인 톤으로 작성해주세요.
+`;
+
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    return response.text();
+  } catch (error) {
+    console.error("Error getting feedback:", error);
+    throw new Error("피드백 생성 중 오류가 발생했습니다.");
+  }
+};
+
 export const analyzePortfolio = async ({
   file,
   additionalRequirements,
